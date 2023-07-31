@@ -1,46 +1,50 @@
 import React, { useState } from 'react';
-
 const UploadPhoto = ({ onUpload }) => {
-  const [imageFile, setImageFile] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
   const [username, setUsername] = useState('');
-
   const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setImageFile(file);
+    const files = event.target.files;
+    setImageFiles([...imageFiles, ...files]);
   };
-
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
   };
-
   const handleSubmit = (event) => {
     event.preventDefault();
-    // Create an object with the photo data and send it back to the App component
-    const photoData = {
-      id: new Date().getTime(), // Just a simple timestamp as an ID (you can use a better approach)
-      imageUrl: URL.createObjectURL(imageFile), // Get the temporary image URL from the uploaded file
+    const uploadedPhotos = imageFiles.map((file) => ({
+      id: new Date().getTime() + Math.random(), 
+      imageUrl: URL.createObjectURL(file),
       username: username,
-    };
-    onUpload(photoData);
-
-    setImageFile(null);
+      likes: 0, 
+      liked: false, 
+    }));
+    uploadedPhotos.forEach((photoData) => {
+      onUpload(photoData);
+    });
+    setImageFiles([]);
     setUsername('');
   };
-
+  const headerStyle = {
+    textAlign: 'center',
+    color: 'blue',
+    marginBottom: '20px',
+  };
   return (
     <div>
+      <h1 style={headerStyle}>PHOTO-SHARING-APP</h1>  
       <h2>Upload Photo</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <input type="file" accept="image/*" onChange={handleFileChange} />
+          <input type="file" accept="image/*" multiple onChange={handleFileChange} />
         </div>
+        <br/>
         <div>
           <input type="text" placeholder="Username" value={username} onChange={handleUsernameChange} />
         </div>
+        <br/>
         <button type="submit">Upload</button>
       </form>
     </div>
   );
 };
-
 export default UploadPhoto;
